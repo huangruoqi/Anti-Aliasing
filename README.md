@@ -1,6 +1,7 @@
 # Rust Anti-Aliasing Line
 
 Install Rust: https://www.rust-lang.org/tools/install
+
 Execute the following command in terminal
 * `cargo run`
 
