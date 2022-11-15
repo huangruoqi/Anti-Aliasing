@@ -24,6 +24,26 @@ fn main() {
     event_loop.run(move |event, _, control_flow| {
         match event {
             Event::WindowEvent {
+                event: WindowEvent::MouseInput {
+                    button: winit::event::MouseButton::Left,
+                    state: winit::event::ElementState::Released,
+                    ..
+                },
+                ..
+            } => {
+                println!("Released!!");
+            }
+            Event::WindowEvent {
+                event: WindowEvent::MouseInput {
+                    button: winit::event::MouseButton::Left,
+                    state: winit::event::ElementState::Pressed,
+                    ..
+                },
+                ..
+            } => {
+                println!("Pressed!!");
+            }
+            Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 ..
             } => {
