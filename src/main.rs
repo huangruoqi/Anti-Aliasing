@@ -20,8 +20,8 @@ fn main() {
     let mut canvas = WinitCanvas::new(&window).unwrap();
     let mut x: i32 = 1;
     let mut incrementing = true;
-    let mut mouse_x = 0.0;
-    let mut mouse_y = 0.0;
+    let mut mouse_x: u32 = 0;
+    let mut mouse_y: u32 = 0;
 
     event_loop.run(move |e, _, control_flow| {
         match e {
@@ -44,6 +44,12 @@ fn main() {
                 ..
             } => {
                 println!("Pressed!!");
+                for i in 0..10 {
+                    for j in 0..10 {
+                        canvas.draw_pixel(mouse_x+i, mouse_y+j, palette::WHITE);
+                    }
+                }
+                window.request_redraw();
             }
             Event::WindowEvent {
                 event: WindowEvent::CursorMoved {
@@ -54,8 +60,8 @@ fn main() {
                 },
                 ..
             } => {
-                mouse_x = x;
-                mouse_y = y;
+                mouse_x = x as u32;
+                mouse_y = y as u32;
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
@@ -68,7 +74,7 @@ fn main() {
             }
             Event::RedrawRequested(_) => {
                 canvas.render().unwrap();
-                canvas.reset_frame();
+                // canvas.reset_frame();
             }
             _ => (),
         }
