@@ -40,6 +40,9 @@ fn main() {
     fn draw_pixel(vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize) {
         vec_grid[y][x] = 1 as u8
     }
+    fn draw_pixel_canvas(cvs: &mut WinitCanvas, x: u32, y:u32) {
+        cvs.draw_pixel(x, y, palette::WHITE);
+    }
     fn draw_point(vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, width: usize) {
         for i in 0..width{
             for j in 0..width {
@@ -169,11 +172,14 @@ fn main() {
             }
             Event::RedrawRequested(_) => {
                 canvas.reset_frame();
-                // TODO: 
+                /**
+                    TODO: optimize with draw_point and draw_line only for no anti-aliasing
+                        make bigger pixels to demostrate the problem with no anti-aliasing
+                **/
                 for row in 0..HEIGHT {
                     for col in 0..WIDTH {
                         if grid[row as usize][col as usize] == 1u8 {
-                            canvas.draw_pixel(col as u32, row as u32, palette::WHITE);
+                            draw_pixel_canvas(&mut canvas, col as u32, row as u32);
                         }
                     }
                 }
