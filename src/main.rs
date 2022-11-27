@@ -47,17 +47,17 @@ fn main() {
             }
         }
     }
-    fn draw_line(vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>, arr: &mut Vec<usize>, width: usize) {
+    fn draw_line(vec_grid: &mut Vec<Vec<u8>>, vec_pair: &mut Vec<usize>, width: usize) {
         
     }
-    fn press(vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>,arr: &mut Vec<usize>, x: usize, y:usize) {
+    fn press(vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize) {
         draw_point(vec_grid, x, y, 10 as usize);
-        arr.push(x);
-        arr.push(y);
-        if arr.len()>3 {
-            vec_pairs.push(vec![arr[0], arr[1]]);
-            *arr = vec![0usize;0];
-            draw_line(vec_grid, vec_pairs,arr, 10 as usize);
+        vec_pair.push(x);
+        vec_pair.push(y);
+        if vec_pair.len()>3 {
+            vec_pairs.push(vec![vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3]]);
+            *vec_pair = vec![0usize;0];
+            draw_line(vec_grid, vec_pair, 10 as usize);
         }
     }
 
