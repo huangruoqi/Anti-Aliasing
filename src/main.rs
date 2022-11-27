@@ -84,10 +84,10 @@ fn main() {
         print!("{} {}", cx, bound);
         while (cx as usize) < (bound as usize) {
             if flipped{
-                draw_pixel(vec_grid, cy as usize, cx as usize);
+                draw_point(vec_grid, cy as usize, cx as usize, 10 as usize);
             }
             else {
-                draw_pixel(vec_grid, cx as usize, cy as usize);
+                draw_point(vec_grid, cx as usize, cy as usize, 10 as usize);
             }
             cx+=sign(dx);
             if p < 0 {
@@ -99,6 +99,7 @@ fn main() {
             }
         }
     }
+
     fn sign(n: i32) -> i32 {
         if n < 0 {
             return -1;
