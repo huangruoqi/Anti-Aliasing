@@ -5,7 +5,7 @@ use winit::window::WindowBuilder;
 use ferrux_canvas::canvas::Canvas;
 use ferrux_canvas::canvas::winit::WinitCanvas;
 use ferrux_canvas::color::{ColorBuilder, palette};
-extern crate std;
+use std::mem;
 
 fn main() {
     const WIDTH_DISPLAY : usize = 500;
@@ -37,27 +37,84 @@ fn main() {
     let mut grid = vec![vec![0u8; WIDTH]; HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut pair = vec![0usize;0];
-    fn draw_pixel(vec_grid: &mut Vec<Vec<u8>>, i: usize, j:usize) {
-        vec_grid[i][j] = 1 as u8
+    fn draw_pixel(vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize) {
+        vec_grid[y][x] = 1 as u8
     }
     fn draw_point(vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, width: usize) {
         for i in 0..width{
             for j in 0..width {
-                draw_pixel(vec_grid, j+y-width/2, i+x-width/2);
+                draw_pixel(vec_grid, i+x-width/2, j+y-width/2);
             }
         }
     }
-    fn draw_line(vec_grid: &mut Vec<Vec<u8>>, vec_pair: &mut Vec<usize>, width: usize) {
-        
+    fn draw_line(vec_grid: &mut Vec<Vec<u8>>, x1:usize,y1:usize,x2:usize,y2:usize, width: usize) {
+        let mut x_lo: i32 = x1 as i32;
+        let mut x_hi: i32 = x2 as i32;
+        let mut y_lo: i32 = y1 as i32;
+        let mut y_hi: i32 = y2 as i32;
+        let mut dx = x_hi - x_lo;
+        let mut dy = y_hi - y_lo;
+        let flipped = dx * sign(dx) < dy * sign(dy);
+        let mut bound;
+        let mut cx;
+        let mut cy;
+        if flipped {
+            if y_lo > y_hi {
+                mem::swap(&mut x_lo, &mut x_hi);
+                mem::swap(&mut y_lo, &mut y_hi);
+            }
+            dx = y_hi - y_lo;
+            dy = x_hi - x_lo;
+            cx = y_lo;
+            cy = x_lo;
+            bound = y_hi;
+        }
+        else {
+            if x_lo > x_hi {
+                mem::swap(&mut x_lo, &mut x_hi);
+                mem::swap(&mut y_lo, &mut y_hi);
+            }
+            dx = x_hi - x_lo;
+            dy = y_hi - y_lo;
+            cx = x_lo;
+            cy = y_lo;
+            bound = x_hi;
+        }
+        let mut p: i32 = 2 * dy - dx;
+        print!("{} {}", cx, bound);
+        while (cx as usize) < (bound as usize) {
+            if flipped{
+                draw_pixel(vec_grid, cy as usize, cx as usize);
+            }
+            else {
+                draw_pixel(vec_grid, cx as usize, cy as usize);
+            }
+            cx+=sign(dx);
+            if p < 0 {
+                p = p + 2 * dy * sign(dy);
+            }
+            else {
+                p = p + 2 * dy * sign(dy) - 2 * dx * sign(dx);
+                cy+=sign(dy);
+            }
+        }
+    }
+    fn sign(n: i32) -> i32 {
+        if n < 0 {
+            return -1;
+        }
+        else {
+            return 1;
+        }
     }
     fn press(vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize) {
         draw_point(vec_grid, x, y, 10 as usize);
         vec_pair.push(x);
         vec_pair.push(y);
         if vec_pair.len()>3 {
+            draw_line(vec_grid, vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3], 10 as usize);
             vec_pairs.push(vec![vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3]]);
-            *vec_pair = vec![0usize;0];
-            draw_line(vec_grid, vec_pair, 10 as usize);
+            vec_pair.clear();
         }
     }
 
