@@ -169,6 +169,7 @@ fn main() {
             }
             Event::RedrawRequested(_) => {
                 canvas.reset_frame();
+                // TODO: 
                 for row in 0..HEIGHT {
                     for col in 0..WIDTH {
                         if grid[row as usize][col as usize] == 1u8 {
