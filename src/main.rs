@@ -37,13 +37,15 @@ fn main() {
     let mut grid = vec![vec![0u8; WIDTH]; HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut pair = vec![0usize;0];
-    fn draw_pixel(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color) {
-        cvs.draw_pixel(x as u32, y as u32, (*color).clone());
+    fn draw_pixel(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
+        let mut c = (*color).clone();
+        c.a = alpha;
+        cvs.draw_pixel(x as u32, y as u32, c);
     }
     fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, width: usize, color: &Color) {
         for i in 0..width{
             for j in 0..width {
-                draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color);
+                draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
             }
         }
     }
@@ -83,10 +85,10 @@ fn main() {
         let mut p: i32 = 2 * dy - dx;
         while (cx as usize) < (bound as usize) {
             if flipped{
-                draw_pixel(cvs, vec_grid, cy as usize, cx as usize, color);
+                draw_pixel(cvs, vec_grid, cy as usize, cx as usize, color, 255 as u8);
             }
             else {
-                draw_pixel(cvs, vec_grid, cx as usize, cy as usize, color);
+                draw_pixel(cvs, vec_grid, cx as usize, cy as usize, color, 255 as u8);
             }
             cx+=sign(dx);
             if p < 0 {
