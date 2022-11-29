@@ -4,7 +4,7 @@ use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use ferrux_canvas::canvas::Canvas;
 use ferrux_canvas::canvas::winit::WinitCanvas;
-use ferrux_canvas::color::{Color, ColorBuilder, palette};
+use ferrux_canvas::color::{Color, palette};
 use std::mem;
 
 fn main() {
@@ -14,8 +14,8 @@ fn main() {
     const RATIO         : usize = 2; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE;
-    const WIDTH         : usize = DISPLAY_WIDTH * RATIO;
-    const HEIGHT        : usize = DISPLAY_HEIGHT * RATIO;
+    // const WIDTH         : usize = DISPLAY_WIDTH * RATIO;
+    // const HEIGHT        : usize = DISPLAY_HEIGHT * RATIO;
     let event_loop = EventLoop::new();
     let window = {
         let size = LogicalSize::new((DISPLAY_WIDTH) as i32, (DISPLAY_HEIGHT) as i32);
@@ -29,7 +29,7 @@ fn main() {
     let mut canvas = WinitCanvas::new(&window).unwrap();
     let mut mouse_x: usize = 0;
     let mut mouse_y: usize = 0;
-    let mut is_pressing: bool = false;
+    // let mut is_pressing: bool = false;
 
     println!("Press number keys to switch between Anti-Aliasing methods:");
     println!("0. None (Bresenham's line drawing algorithm)");
@@ -40,7 +40,7 @@ fn main() {
     let mut grid = vec![vec![0u8; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut pair = vec![0usize;0];
-    fn draw_pixel(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
+    fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
         let mut c = (*color).clone();
         c.a = alpha;
         let real_size = PIXEL_SIZE * RATIO;
@@ -57,7 +57,7 @@ fn main() {
             }
         }
     }
-    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x1:usize,y1:usize,x2:usize,y2:usize, width: usize, color: &Color) {
+    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x1:usize,y1:usize,x2:usize,y2:usize, _width: usize, color: &Color) {
         let mut x_lo: i32 = x1 as i32;
         let mut x_hi: i32 = x2 as i32;
         let mut y_lo: i32 = y1 as i32;
@@ -65,7 +65,7 @@ fn main() {
         let mut dx = x_hi - x_lo;
         let mut dy = y_hi - y_lo;
         let flipped = dx * sign(dx) < dy * sign(dy);
-        let mut bound;
+        let bound;
         let mut cx;
         let mut cy;
         if flipped {
@@ -139,7 +139,7 @@ fn main() {
                 },
                 ..
             } => {
-                is_pressing = false;
+                // is_pressing = false;
             }
             Event::WindowEvent {
                 event: WindowEvent::MouseInput {
@@ -149,7 +149,7 @@ fn main() {
                 },
                 ..
             } => {
-                is_pressing = true;
+                // is_pressing = true;
                 let x = mouse_x / PIXEL_SIZE / RATIO;
                 let y = mouse_y / PIXEL_SIZE / RATIO;
                 press(&mut canvas, &mut grid, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
@@ -178,9 +178,6 @@ fn main() {
             }
             Event::RedrawRequested(_) => {
                 // canvas.reset_frame();
-                /**
-                    TODO: make bigger pixels to demostrate the problem with no anti-aliasing
-                **/
                 canvas.render().unwrap();
             }
             _ => (),
