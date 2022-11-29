@@ -139,7 +139,6 @@ fn main() {
                 },
                 ..
             } => {
-                println!("Released!!");
                 is_pressing = false;
             }
             Event::WindowEvent {
@@ -150,7 +149,6 @@ fn main() {
                 },
                 ..
             } => {
-                println!("Pressed!!");
                 is_pressing = true;
                 let x = mouse_x / PIXEL_SIZE / RATIO;
                 let y = mouse_y / PIXEL_SIZE / RATIO;
