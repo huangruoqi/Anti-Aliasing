@@ -8,14 +8,17 @@ use ferrux_canvas::color::{Color, ColorBuilder, palette};
 use std::mem;
 
 fn main() {
-    const WIDTH_DISPLAY : usize = 500;
-    const HEIGHT_DISPLAY: usize = 500;
+    const GRID_WIDTH    : usize = 100;
+    const GRID_HEIGHT   : usize = 100;
+    const PIXEL_SIZE    : usize = 5;
     const RATIO         : usize = 2; // change to 1 for Windows
-    const WIDTH         : usize = WIDTH_DISPLAY * RATIO;
-    const HEIGHT        : usize = HEIGHT_DISPLAY * RATIO;
+    const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE;
+    const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE;
+    const WIDTH         : usize = DISPLAY_WIDTH * RATIO;
+    const HEIGHT        : usize = DISPLAY_HEIGHT * RATIO;
     let event_loop = EventLoop::new();
     let window = {
-        let size = LogicalSize::new((WIDTH_DISPLAY) as i32, (HEIGHT_DISPLAY) as i32);
+        let size = LogicalSize::new((DISPLAY_WIDTH) as i32, (DISPLAY_HEIGHT) as i32);
         WindowBuilder::new()
           .with_title("Anti-Aliasing Demo")
           .with_inner_size(size)
@@ -24,8 +27,8 @@ fn main() {
           .unwrap()
     };
     let mut canvas = WinitCanvas::new(&window).unwrap();
-    let mut mouse_x: u32 = 0;
-    let mut mouse_y: u32 = 0;
+    let mut mouse_x: usize = 0;
+    let mut mouse_y: usize = 0;
     let mut is_pressing: bool = false;
 
     println!("Press number keys to switch between Anti-Aliasing methods:");
@@ -34,16 +37,21 @@ fn main() {
     println!("2. Fast Approximate Anti-Aliasing");
     println!("3. Supersampling Anti-Aliasing");
 
-    let mut grid = vec![vec![0u8; WIDTH]; HEIGHT];
+    let mut grid = vec![vec![0u8; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut pair = vec![0usize;0];
     fn draw_pixel(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
         let mut c = (*color).clone();
         c.a = alpha;
-        cvs.draw_pixel(x as u32, y as u32, c);
+        let real_size = PIXEL_SIZE * RATIO;
+        for i in 0..real_size {
+            for j in 0..real_size {
+                cvs.draw_pixel((x*real_size+i) as u32, (y*real_size+j) as u32, c.clone());
+            }
+        }
     }
     fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, width: usize, color: &Color) {
-        for i in 0..width{
+        for i in 0..width {
             for j in 0..width {
                 draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
             }
@@ -110,7 +118,7 @@ fn main() {
         }
     }
     fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
-        draw_point(cvs, vec_grid, x, y, 10 as usize, color);
+        draw_point(cvs, vec_grid, x, y, 3 as usize, color);
         vec_pair.push(x);
         vec_pair.push(y);
         if vec_pair.len()>3 {
@@ -144,7 +152,9 @@ fn main() {
             } => {
                 println!("Pressed!!");
                 is_pressing = true;
-                press(&mut canvas, &mut grid, &mut pairs, &mut pair, mouse_x as usize, mouse_y as usize, &palette::WHITE);
+                let x = mouse_x / PIXEL_SIZE / RATIO;
+                let y = mouse_y / PIXEL_SIZE / RATIO;
+                press(&mut canvas, &mut grid, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
                 window.request_redraw();
             }
             Event::WindowEvent {
@@ -156,8 +166,8 @@ fn main() {
                 },
                 ..
             } => {
-                mouse_x = x as u32;
-                mouse_y = y as u32;
+                mouse_x = x as usize;
+                mouse_y = y as usize;
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
