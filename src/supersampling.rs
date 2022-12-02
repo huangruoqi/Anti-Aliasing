@@ -3,8 +3,11 @@ use std::mem;
 
 const FACTOR: usize = 3 as usize;
 
-pub fn ssaa(width: usize, height: usize, pairs: &mut Vec<Vec<usize>>) -> Vec<Vec<Color>>{
+pub fn ssaa(width: usize, height: usize, points: &mut Vec<Vec<usize>>, pairs: &mut Vec<Vec<usize>>) -> Vec<Vec<Color>>{
     let mut s_grid = vec![vec![palette::BLACK; width * FACTOR]; height * FACTOR];
+    for i in points {
+        draw_point(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, FACTOR*3, &palette::WHITE, 255 as u8);
+    }
     for i in pairs{
         draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, FACTOR, &palette::WHITE);
     }

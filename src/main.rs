@@ -9,9 +9,9 @@ use std::mem;
 mod supersampling;
 
 fn main() {
-    const GRID_WIDTH    : usize = 20;
-    const GRID_HEIGHT   : usize = 20;
-    const PIXEL_SIZE    : usize = 20;
+    const GRID_WIDTH    : usize = 30;
+    const GRID_HEIGHT   : usize = 30;
+    const PIXEL_SIZE    : usize = 30;
     const RATIO         : usize = 2; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
@@ -38,6 +38,7 @@ fn main() {
 
     let mut grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
+    let mut points = vec![vec![0usize;2];0];
     let mut pair = vec![0usize;0];
 
     fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, alpha: u8) {
@@ -117,8 +118,9 @@ fn main() {
             return 1;
         }
     }
-    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
+    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>,vec_points:&mut Vec<Vec<usize>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
         draw_point(cvs, vec_grid, x, y, 3 as usize, color);
+        vec_points.push(vec![x,y]);
         vec_pair.push(x);
         vec_pair.push(y);
         if vec_pair.len()>3 {
@@ -145,7 +147,7 @@ fn main() {
                 if scancode == 20 as u32 {
                     println!("ssaa start");
                     canvas.reset_frame();
-                    let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut pairs);
+                    let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs);
                     for i in 0..GRID_WIDTH {
                         for j in 0..GRID_HEIGHT {
                             draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
@@ -176,7 +178,7 @@ fn main() {
                 // is_pressing = true;
                 let x = mouse_x / PIXEL_SIZE;
                 let y = mouse_y / PIXEL_SIZE;
-                press(&mut canvas, &mut grid, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
+                press(&mut canvas, &mut grid, &mut points, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
                 window.request_redraw();
             }
             Event::WindowEvent {
