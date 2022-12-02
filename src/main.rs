@@ -132,6 +132,30 @@ fn main() {
     event_loop.run(move |e, _, control_flow| {
         match e {
             Event::WindowEvent {
+                event: WindowEvent::KeyboardInput {
+                    input: winit::event::KeyboardInput {
+                        scancode,
+                        state: winit::event::ElementState::Released,
+                        ..
+                    },
+                    ..
+                },
+                ..
+            } => {
+                if scancode == 20 as u32 {
+                    println!("ssaa start");
+                    canvas.reset_frame();
+                    let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut pairs);
+                    for i in 0..GRID_WIDTH {
+                        for j in 0..GRID_HEIGHT {
+                            draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
+                        }
+                    }
+                    window.request_redraw();
+                    println!("ssaa end");
+                }
+            }
+            Event::WindowEvent {
                 event: WindowEvent::MouseInput {
                     button: winit::event::MouseButton::Left,
                     state: winit::event::ElementState::Released,
@@ -177,14 +201,6 @@ fn main() {
                 // window.request_redraw();
             }
             Event::RedrawRequested(_) => {
-                // canvas.reset_frame();
-                let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut pairs);
-                for i in 0..GRID_WIDTH {
-                    for j in 0..GRID_HEIGHT {
-                        draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
-                    }
-                }
-
                 canvas.render().unwrap();
             }
             _ => (),

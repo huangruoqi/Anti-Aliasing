@@ -17,7 +17,7 @@ fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec
         for j in 0..height {
             let base_x = i*FACTOR;
             let base_y = j*FACTOR;
-            let mut c = Color::from_rgba("00000000").unwrap();
+            let mut c = Color::from_rgba("000000ff").unwrap();
             let mut r: i32 = 0;
             let mut g: i32 = 0;
             let mut b: i32 = 0;
@@ -92,7 +92,7 @@ fn draw_line(vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize
             draw_point(vec_grid, cy as usize, cx as usize,width, color, 255 as u8);
         }
         else {
-            draw_pixel(vec_grid, cx as usize, cy as usize, color, 255 as u8);
+            draw_point(vec_grid, cx as usize, cy as usize,width, color, 255 as u8);
         }
         cx+=sign(dx);
         if p < 0 {
