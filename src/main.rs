@@ -6,6 +6,7 @@ use ferrux_canvas::canvas::Canvas;
 use ferrux_canvas::canvas::winit::WinitCanvas;
 use ferrux_canvas::color::{Color, palette};
 use std::mem;
+mod supersampling;
 
 fn main() {
     const GRID_WIDTH    : usize = 100;
@@ -35,10 +36,12 @@ fn main() {
     println!("2. Fast Approximate Anti-Aliasing");
     println!("3. Supersampling Anti-Aliasing");
 
-    let mut grid = vec![vec![0u8; GRID_WIDTH]; GRID_HEIGHT];
+    let mut grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut pair = vec![0usize;0];
-    fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
+    let mut gg = supersampling::SSAA(GRID_WIDTH, GRID_HEIGHT ,&mut pairs);
+
+    fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, alpha: u8) {
         let mut c = (*color).clone();
         c.a = alpha;
         let real_size = PIXEL_SIZE;
@@ -48,14 +51,14 @@ fn main() {
             }
         }
     }
-    fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, width: usize, color: &Color) {
+    fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, width: usize, color: &Color) {
         for i in 0..width {
             for j in 0..width {
                 draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
             }
         }
     }
-    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x1:usize,y1:usize,x2:usize,y2:usize, _width: usize, color: &Color) {
+    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, _width: usize, color: &Color) {
         let mut x_lo: i32 = x1 as i32;
         let mut x_hi: i32 = x2 as i32;
         let mut y_lo: i32 = y1 as i32;
@@ -115,7 +118,7 @@ fn main() {
             return 1;
         }
     }
-    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
+    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
         draw_point(cvs, vec_grid, x, y, 3 as usize, color);
         vec_pair.push(x);
         vec_pair.push(y);
