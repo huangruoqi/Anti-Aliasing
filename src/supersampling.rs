@@ -3,12 +3,31 @@ use std::mem;
 
 const FACTOR: usize = 2 as usize;
 
-pub fn SSAA(width: usize, height: usize, pairs: &mut Vec<Vec<usize>>) -> Vec<Vec<Color>>{
+pub fn ssaa(width: usize, height: usize, pairs: &mut Vec<Vec<usize>>) -> Vec<Vec<Color>>{
     let mut s_grid = vec![vec![palette::BLACK; width * FACTOR]; height * FACTOR];
     for i in pairs{
-        draw_line(&mut s_grid, i[0], i[1], i[2], i[3], 1 as usize, &palette::WHITE);
+        draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, 1 as usize, &palette::WHITE);
     }
+    return downsample(width, height, s_grid);
+}
+
+fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec<Color>> {
     let mut r_grid = vec![vec![palette::BLACK; width]; height];
+    for i in 0..width {
+        for j in 0..height {
+            let base_x = i*FACTOR;
+            let base_y = j*FACTOR;
+            let mut c = vec_grid[base_x][base_y].clone();
+            let mut alpha: i32 = 0;
+            for x in 0..FACTOR {
+                for y in 0..FACTOR {
+                    alpha += (vec_grid[base_x+x][base_y+y].a) as i32;
+                }
+            }
+            c.a = (alpha as usize / FACTOR / FACTOR) as u8;
+            r_grid[i][j] = c;
+        }
+    }
     return r_grid;
 }
 

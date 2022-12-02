@@ -39,7 +39,6 @@ fn main() {
     let mut grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut pair = vec![0usize;0];
-    let mut gg = supersampling::SSAA(GRID_WIDTH, GRID_HEIGHT ,&mut pairs);
 
     fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, alpha: u8) {
         let mut c = (*color).clone();
@@ -179,6 +178,13 @@ fn main() {
             }
             Event::RedrawRequested(_) => {
                 // canvas.reset_frame();
+                let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut pairs);
+                for i in 0..GRID_WIDTH {
+                    for j in 0..GRID_HEIGHT {
+                        draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
+                    }
+                }
+
                 canvas.render().unwrap();
             }
             _ => (),
