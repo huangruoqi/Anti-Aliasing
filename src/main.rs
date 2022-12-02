@@ -6,16 +6,15 @@ use ferrux_canvas::canvas::Canvas;
 use ferrux_canvas::canvas::winit::WinitCanvas;
 use ferrux_canvas::color::{Color, palette};
 use std::mem;
+mod supersampling;
 
 fn main() {
-    const GRID_WIDTH    : usize = 100;
-    const GRID_HEIGHT   : usize = 100;
-    const PIXEL_SIZE    : usize = 5;
+    const GRID_WIDTH    : usize = 30;
+    const GRID_HEIGHT   : usize = 30;
+    const PIXEL_SIZE    : usize = 30;
     const RATIO         : usize = 2; // change to 1 for Windows
-    const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE;
-    const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE;
-    // const WIDTH         : usize = DISPLAY_WIDTH * RATIO;
-    // const HEIGHT        : usize = DISPLAY_HEIGHT * RATIO;
+    const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
+    const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
     let event_loop = EventLoop::new();
     let window = {
         let size = LogicalSize::new((DISPLAY_WIDTH) as i32, (DISPLAY_HEIGHT) as i32);
@@ -36,28 +35,31 @@ fn main() {
     println!("1. Xiaolin Wu's line algorithm");
     println!("2. Fast Approximate Anti-Aliasing");
     println!("3. Supersampling Anti-Aliasing");
+    println!("Press <C> to clear");
 
-    let mut grid = vec![vec![0u8; GRID_WIDTH]; GRID_HEIGHT];
+    let mut grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
+    let mut points = vec![vec![0usize;2];0];
     let mut pair = vec![0usize;0];
-    fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
+
+    fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, alpha: u8) {
         let mut c = (*color).clone();
         c.a = alpha;
-        let real_size = PIXEL_SIZE * RATIO;
+        let real_size = PIXEL_SIZE;
         for i in 0..real_size {
             for j in 0..real_size {
                 cvs.draw_pixel((x*real_size+i) as u32, (y*real_size+j) as u32, c.clone());
             }
         }
     }
-    fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, width: usize, color: &Color) {
+    fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, width: usize, color: &Color) {
         for i in 0..width {
             for j in 0..width {
                 draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
             }
         }
     }
-    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, x1:usize,y1:usize,x2:usize,y2:usize, _width: usize, color: &Color) {
+    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, _width: usize, color: &Color) {
         let mut x_lo: i32 = x1 as i32;
         let mut x_hi: i32 = x2 as i32;
         let mut y_lo: i32 = y1 as i32;
@@ -117,8 +119,9 @@ fn main() {
             return 1;
         }
     }
-    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<u8>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
+    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>,vec_points:&mut Vec<Vec<usize>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
         draw_point(cvs, vec_grid, x, y, 3 as usize, color);
+        vec_points.push(vec![x,y]);
         vec_pair.push(x);
         vec_pair.push(y);
         if vec_pair.len()>3 {
@@ -131,6 +134,41 @@ fn main() {
 
     event_loop.run(move |e, _, control_flow| {
         match e {
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput {
+                    input: winit::event::KeyboardInput {
+                        scancode,
+                        state: winit::event::ElementState::Released,
+                        ..
+                    },
+                    ..
+                },
+                ..
+            } => {
+                match scancode as i32 {
+                    20 => {
+                        println!("ssaa start");
+                        canvas.reset_frame();
+                        let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs);
+                        for i in 0..GRID_WIDTH {
+                            for j in 0..GRID_HEIGHT {
+                                draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
+                            }
+                        }
+                        window.request_redraw();
+                        println!("ssaa end");
+                    }
+                    8 => {
+                        canvas.reset_frame();
+                        points.clear();
+                        pairs.clear();
+                        pair.clear();
+                        grid.clear();
+                        window.request_redraw();
+                    }
+                    _ => { println!("{}", scancode); }
+                }
+            }
             Event::WindowEvent {
                 event: WindowEvent::MouseInput {
                     button: winit::event::MouseButton::Left,
@@ -150,9 +188,9 @@ fn main() {
                 ..
             } => {
                 // is_pressing = true;
-                let x = mouse_x / PIXEL_SIZE / RATIO;
-                let y = mouse_y / PIXEL_SIZE / RATIO;
-                press(&mut canvas, &mut grid, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
+                let x = mouse_x / PIXEL_SIZE;
+                let y = mouse_y / PIXEL_SIZE;
+                press(&mut canvas, &mut grid, &mut points, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
                 window.request_redraw();
             }
             Event::WindowEvent {
@@ -177,7 +215,6 @@ fn main() {
                 // window.request_redraw();
             }
             Event::RedrawRequested(_) => {
-                // canvas.reset_frame();
                 canvas.render().unwrap();
             }
             _ => (),
