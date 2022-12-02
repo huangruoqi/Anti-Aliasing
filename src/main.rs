@@ -35,6 +35,7 @@ fn main() {
     println!("1. Xiaolin Wu's line algorithm");
     println!("2. Fast Approximate Anti-Aliasing");
     println!("3. Supersampling Anti-Aliasing");
+    println!("Press <C> to clear");
 
     let mut grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
@@ -144,17 +145,28 @@ fn main() {
                 },
                 ..
             } => {
-                if scancode == 20 as u32 {
-                    println!("ssaa start");
-                    canvas.reset_frame();
-                    let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs);
-                    for i in 0..GRID_WIDTH {
-                        for j in 0..GRID_HEIGHT {
-                            draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
+                match scancode as i32 {
+                    20 => {
+                        println!("ssaa start");
+                        canvas.reset_frame();
+                        let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs);
+                        for i in 0..GRID_WIDTH {
+                            for j in 0..GRID_HEIGHT {
+                                draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
+                            }
                         }
+                        window.request_redraw();
+                        println!("ssaa end");
                     }
-                    window.request_redraw();
-                    println!("ssaa end");
+                    8 => {
+                        canvas.reset_frame();
+                        points.clear();
+                        pairs.clear();
+                        pair.clear();
+                        grid.clear();
+                        window.request_redraw();
+                    }
+                    _ => { println!("{}", scancode); }
                 }
             }
             Event::WindowEvent {
