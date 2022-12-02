@@ -10,12 +10,10 @@ use std::mem;
 fn main() {
     const GRID_WIDTH    : usize = 100;
     const GRID_HEIGHT   : usize = 100;
-    const PIXEL_SIZE    : usize = 5;
+    const PIXEL_SIZE    : usize = 10;
     const RATIO         : usize = 2; // change to 1 for Windows
-    const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE;
-    const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE;
-    // const WIDTH         : usize = DISPLAY_WIDTH * RATIO;
-    // const HEIGHT        : usize = DISPLAY_HEIGHT * RATIO;
+    const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
+    const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
     let event_loop = EventLoop::new();
     let window = {
         let size = LogicalSize::new((DISPLAY_WIDTH) as i32, (DISPLAY_HEIGHT) as i32);
@@ -43,7 +41,7 @@ fn main() {
     fn draw_pixel(cvs: &mut WinitCanvas, _vec_grid: &mut Vec<Vec<u8>>, x: usize, y:usize, color: &Color, alpha: u8) {
         let mut c = (*color).clone();
         c.a = alpha;
-        let real_size = PIXEL_SIZE * RATIO;
+        let real_size = PIXEL_SIZE;
         for i in 0..real_size {
             for j in 0..real_size {
                 cvs.draw_pixel((x*real_size+i) as u32, (y*real_size+j) as u32, c.clone());
@@ -150,8 +148,8 @@ fn main() {
                 ..
             } => {
                 // is_pressing = true;
-                let x = mouse_x / PIXEL_SIZE / RATIO;
-                let y = mouse_y / PIXEL_SIZE / RATIO;
+                let x = mouse_x / PIXEL_SIZE;
+                let y = mouse_y / PIXEL_SIZE;
                 press(&mut canvas, &mut grid, &mut pairs, &mut pair, x as usize, y as usize, &palette::WHITE);
                 window.request_redraw();
             }
