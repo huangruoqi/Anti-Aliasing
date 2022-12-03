@@ -6,7 +6,7 @@ const FACTOR: usize = 3 as usize;
 pub fn ssaa(width: usize, height: usize, points: &mut Vec<Vec<usize>>, pairs: &mut Vec<Vec<usize>>, point_width: usize, line_width: usize) -> Vec<Vec<Color>>{
     let mut s_grid = vec![vec![palette::BLACK; width * FACTOR]; height * FACTOR];
     for i in points {
-        draw_point(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, point_width*FACTOR, &palette::WHITE, 255 as u8);
+        draw_point(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, point_width*FACTOR, &palette::WHITE);
     }
     for i in pairs{
         draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, line_width*FACTOR, &palette::WHITE);
@@ -42,15 +42,14 @@ fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec
     return r_grid;
 }
 
-fn draw_pixel(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, alpha: u8) {
-    let mut c = (*color).clone();
-    c.a = alpha;
+fn draw_pixel(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color) {
+    let c = (*color).clone();
     vec_grid[x][y] = c;
 }
-fn draw_point(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize,width:usize, color: &Color, alpha: u8) {
+fn draw_point(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize,width:usize, color: &Color) {
     for i in 0..width {
         for j in 0..width {
-            draw_pixel(vec_grid, i+x - width/2, j+y-width/2, color, 255 as u8);
+            draw_pixel(vec_grid, i+x - width/2, j+y-width/2, color);
         }
     }
 }
@@ -91,10 +90,10 @@ fn draw_line(vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize
     let mut p: i32 = 2 * dy - dx;
     while (cx as usize) <= (bound as usize) {
         if flipped{
-            draw_point(vec_grid, cy as usize, cx as usize,width, color, 255 as u8);
+            draw_point(vec_grid, cy as usize, cx as usize,width, color);
         }
         else {
-            draw_point(vec_grid, cx as usize, cy as usize,width, color, 255 as u8);
+            draw_point(vec_grid, cx as usize, cy as usize,width, color);
         }
         cx+=sign(dx);
         if p < 0 {
