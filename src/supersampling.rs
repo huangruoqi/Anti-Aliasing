@@ -19,7 +19,6 @@ fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec
     let mut r_grid = vec![vec![palette::BLACK; width]; height];
     for i in 0..width {
         for j in 0..height {
-            println!("{} {}", i, j);
             let base_x = i*FACTOR;
             let base_y = j*FACTOR;
             // let mut c = Color::from_rgba("000000ff").unwrap(); // this is crazily inefficient lol;
