@@ -9,9 +9,9 @@ use std::mem;
 mod supersampling;
 
 fn main() {
-    const GRID_WIDTH    : usize = 30;
-    const GRID_HEIGHT   : usize = 30;
-    const PIXEL_SIZE    : usize = 30;
+    const GRID_WIDTH    : usize = 50;
+    const GRID_HEIGHT   : usize = 50;
+    const PIXEL_SIZE    : usize = 20;
     const RATIO         : usize = 2; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
@@ -93,7 +93,7 @@ fn main() {
             bound = x_hi;
         }
         let mut p: i32 = 2 * dy - dx;
-        while (cx as usize) < (bound as usize) {
+        while (cx as usize) <= (bound as usize) {
             if flipped{
                 draw_pixel(cvs, vec_grid, cy as usize, cx as usize, color, 255 as u8);
             }
@@ -150,13 +150,13 @@ fn main() {
                         println!("ssaa start");
                         canvas.reset_frame();
                         let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs);
+                        println!("ssaa end");
                         for i in 0..GRID_WIDTH {
                             for j in 0..GRID_HEIGHT {
                                 draw_pixel(&mut canvas, &mut grid, i, j, &ss_grid[i][j], ss_grid[i][j].a)
                             }
                         }
                         window.request_redraw();
-                        println!("ssaa end");
                     }
                     8 => {
                         canvas.reset_frame();

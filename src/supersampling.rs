@@ -12,15 +12,18 @@ pub fn ssaa(width: usize, height: usize, points: &mut Vec<Vec<usize>>, pairs: &m
         draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, FACTOR, &palette::WHITE);
     }
     return downsample(width, height, s_grid);
+
 }
 
 fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec<Color>> {
     let mut r_grid = vec![vec![palette::BLACK; width]; height];
     for i in 0..width {
         for j in 0..height {
+            println!("{} {}", i, j);
             let base_x = i*FACTOR;
             let base_y = j*FACTOR;
-            let mut c = Color::from_rgba("000000ff").unwrap();
+            // let mut c = Color::from_rgba("000000ff").unwrap(); // this is crazily inefficient lol;
+            let mut c = palette::BLACK;
             let mut r: i32 = 0;
             let mut g: i32 = 0;
             let mut b: i32 = 0;
@@ -90,7 +93,7 @@ fn draw_line(vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize
         bound = x_hi;
     }
     let mut p: i32 = 2 * dy - dx;
-    while (cx as usize) < (bound as usize) {
+    while (cx as usize) <= (bound as usize) {
         if flipped{
             draw_point(vec_grid, cy as usize, cx as usize,width, color, 255 as u8);
         }
