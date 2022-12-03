@@ -15,7 +15,7 @@ fn main() {
     const RATIO         : usize = 2; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
-    const POINT_WIDTH   : usize = 3;
+    const POINT_WIDTH   : usize = 5;
     const LINE_WIDTH    : usize = 3;
     let event_loop = EventLoop::new();
     let window = {
@@ -57,7 +57,7 @@ fn main() {
     fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, width: usize, color: &Color) {
         for i in 0..width {
             for j in 0..width {
-                draw_pixel(cvs, vec_grid, i+x, j+y, color, 255 as u8);
+                draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
             }
         }
     }

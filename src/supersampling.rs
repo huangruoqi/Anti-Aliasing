@@ -26,19 +26,16 @@ fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec
             let mut r: i32 = 0;
             let mut g: i32 = 0;
             let mut b: i32 = 0;
-            let mut a: i32 = 0;
             for x in 0..FACTOR {
                 for y in 0..FACTOR {
                     r += vec_grid[base_x+x][base_y+y].r as i32;
                     g += vec_grid[base_x+x][base_y+y].g as i32;
                     b += vec_grid[base_x+x][base_y+y].b as i32;
-                    a += vec_grid[base_x+x][base_y+y].a as i32;
                 }
             }
             c.r = ((r as usize)/FACTOR/FACTOR) as u8;
             c.g = ((g as usize)/FACTOR/FACTOR) as u8;
             c.b = ((b as usize)/FACTOR/FACTOR) as u8;
-            c.a = ((a as usize)/FACTOR/FACTOR) as u8;
             r_grid[i][j] = c;
         }
     }
@@ -53,7 +50,7 @@ fn draw_pixel(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, 
 fn draw_point(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize,width:usize, color: &Color, alpha: u8) {
     for i in 0..width {
         for j in 0..width {
-            draw_pixel(vec_grid, i+x, j+y, color, 255 as u8);
+            draw_pixel(vec_grid, i+x - width/2, j+y-width/2, color, 255 as u8);
         }
     }
 }
