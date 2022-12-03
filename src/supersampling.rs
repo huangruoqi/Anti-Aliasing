@@ -3,13 +3,13 @@ use std::mem;
 
 const FACTOR: usize = 3 as usize;
 
-pub fn ssaa(width: usize, height: usize, points: &mut Vec<Vec<usize>>, pairs: &mut Vec<Vec<usize>>) -> Vec<Vec<Color>>{
+pub fn ssaa(width: usize, height: usize, points: &mut Vec<Vec<usize>>, pairs: &mut Vec<Vec<usize>>, point_width: usize, line_width: usize) -> Vec<Vec<Color>>{
     let mut s_grid = vec![vec![palette::BLACK; width * FACTOR]; height * FACTOR];
     for i in points {
-        draw_point(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, FACTOR*3, &palette::WHITE, 255 as u8);
+        draw_point(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, point_width*FACTOR, &palette::WHITE, 255 as u8);
     }
     for i in pairs{
-        draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, FACTOR, &palette::WHITE);
+        draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, line_width*FACTOR, &palette::WHITE);
     }
     return downsample(width, height, s_grid);
 
@@ -53,7 +53,7 @@ fn draw_pixel(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color, 
 fn draw_point(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize,width:usize, color: &Color, alpha: u8) {
     for i in 0..width {
         for j in 0..width {
-            draw_pixel(vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
+            draw_pixel(vec_grid, i+x, j+y, color, 255 as u8);
         }
     }
 }

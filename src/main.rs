@@ -15,6 +15,8 @@ fn main() {
     const RATIO         : usize = 2; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
+    const POINT_WIDTH   : usize = 3;
+    const LINE_WIDTH    : usize = 3;
     let event_loop = EventLoop::new();
     let window = {
         let size = LogicalSize::new((DISPLAY_WIDTH) as i32, (DISPLAY_HEIGHT) as i32);
@@ -55,11 +57,11 @@ fn main() {
     fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, width: usize, color: &Color) {
         for i in 0..width {
             for j in 0..width {
-                draw_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color, 255 as u8);
+                draw_pixel(cvs, vec_grid, i+x, j+y, color, 255 as u8);
             }
         }
     }
-    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, _width: usize, color: &Color) {
+    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, width: usize, color: &Color) {
         let mut x_lo: i32 = x1 as i32;
         let mut x_hi: i32 = x2 as i32;
         let mut y_lo: i32 = y1 as i32;
@@ -95,10 +97,10 @@ fn main() {
         let mut p: i32 = 2 * dy - dx;
         while (cx as usize) <= (bound as usize) {
             if flipped{
-                draw_pixel(cvs, vec_grid, cy as usize, cx as usize, color, 255 as u8);
+                draw_point(cvs, vec_grid, cy as usize, cx as usize, width, color);
             }
             else {
-                draw_pixel(cvs, vec_grid, cx as usize, cy as usize, color, 255 as u8);
+                draw_point(cvs, vec_grid, cx as usize, cy as usize, width, color);
             }
             cx+=sign(dx);
             if p < 0 {
@@ -120,12 +122,12 @@ fn main() {
         }
     }
     fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>,vec_points:&mut Vec<Vec<usize>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
-        draw_point(cvs, vec_grid, x, y, 3 as usize, color);
+        draw_point(cvs, vec_grid, x, y, POINT_WIDTH, color);
         vec_points.push(vec![x,y]);
         vec_pair.push(x);
         vec_pair.push(y);
         if vec_pair.len()>3 {
-            draw_line(cvs, vec_grid, vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3], 10 as usize, color);
+            draw_line(cvs, vec_grid, vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3], LINE_WIDTH, color);
             vec_pairs.push(vec![vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3]]);
             vec_pair.clear();
         }
@@ -149,7 +151,7 @@ fn main() {
                     20 => {
                         println!("ssaa start");
                         canvas.reset_frame();
-                        let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs);
+                        let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs, POINT_WIDTH, LINE_WIDTH);
                         println!("ssaa end");
                         for i in 0..GRID_WIDTH {
                             for j in 0..GRID_HEIGHT {
