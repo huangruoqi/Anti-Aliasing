@@ -7,6 +7,7 @@ use ferrux_canvas::canvas::winit::WinitCanvas;
 use ferrux_canvas::color::{Color, palette};
 use std::mem;
 mod supersampling;
+mod fastapproximate;
 
 fn main() {
     const GRID_WIDTH    : usize = 200;
@@ -168,7 +169,15 @@ fn main() {
                         }
                     }
                     19 => {}
-                    20 => {}
+                    20 => {
+                        canvas.reset_frame();
+                        let fx_grid = fastapproximate::fxaa(GRID_WIDTH, GRID_HEIGHT , &grid);
+                        for i in 0..GRID_WIDTH {
+                            for j in 0..GRID_HEIGHT {
+                                draw_pixel(&mut canvas, i, j, &fx_grid[i][j]);
+                            }
+                        }
+                    }
                     21 => {
                         canvas.reset_frame();
                         let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs, POINT_WIDTH, LINE_WIDTH);
