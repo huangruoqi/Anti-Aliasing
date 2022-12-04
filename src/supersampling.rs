@@ -11,11 +11,11 @@ pub fn ssaa(width: usize, height: usize, points: &mut Vec<Vec<usize>>, pairs: &m
     for i in pairs{
         draw_line(&mut s_grid, i[0]*FACTOR, i[1]*FACTOR, i[2]*FACTOR, i[3]*FACTOR, line_width*FACTOR, &palette::WHITE);
     }
-    return downsample(width, height, s_grid);
+    return downsample(width, height, &s_grid);
 
 }
 
-fn downsample(width: usize, height: usize, vec_grid: Vec<Vec<Color>>) -> Vec<Vec<Color>> {
+fn downsample(width: usize, height: usize, vec_grid: &Vec<Vec<Color>>) -> Vec<Vec<Color>> {
     let mut r_grid = vec![vec![palette::BLACK; width]; height];
     for i in 0..width {
         for j in 0..height {
