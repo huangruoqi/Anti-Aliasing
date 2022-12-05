@@ -151,7 +151,7 @@ fn main() {
             Event::WindowEvent {
                 event: WindowEvent::KeyboardInput {
                     input: winit::event::KeyboardInput {
-                        scancode,
+                        virtual_keycode,
                         state: winit::event::ElementState::Released,
                         ..
                     },
@@ -159,8 +159,8 @@ fn main() {
                 },
                 ..
             } => {
-                match scancode as i32 {
-                    18 => {
+                match virtual_keycode.unwrap() {
+                    winit::event::VirtualKeyCode::Key1 => {
                         canvas.reset_frame();
                         for i in 0..GRID_WIDTH {
                             for j in 0..GRID_HEIGHT {
@@ -168,8 +168,8 @@ fn main() {
                             }
                         }
                     }
-                    19 => {}
-                    20 => {
+                    winit::event::VirtualKeyCode::Key2 => {}
+                    winit::event::VirtualKeyCode::Key3 => {
                         canvas.reset_frame();
                         let fx_grid = fastapproximate::fxaa(GRID_WIDTH, GRID_HEIGHT , &grid);
                         for i in 0..GRID_WIDTH {
@@ -178,7 +178,7 @@ fn main() {
                             }
                         }
                     }
-                    21 => {
+                    winit::event::VirtualKeyCode::Key4 => {
                         canvas.reset_frame();
                         let ss_grid = supersampling::ssaa(GRID_WIDTH, GRID_HEIGHT ,&mut points, &mut pairs, POINT_WIDTH, LINE_WIDTH);
                         for i in 0..GRID_WIDTH {
@@ -187,7 +187,7 @@ fn main() {
                             }
                         }
                     }
-                    8 => {
+                    winit::event::VirtualKeyCode::C => {
                         canvas.reset_frame();
                         points.clear();
                         pairs.clear();
@@ -198,7 +198,7 @@ fn main() {
                             }
                         }
                     }
-                    _ => { println!("{}", scancode); }
+                    _ => { println!("not found"); }
                 }
                 window.request_redraw();
             }
