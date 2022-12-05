@@ -10,9 +10,9 @@ mod supersampling;
 mod fastapproximate;
 
 fn main() {
-    const GRID_WIDTH    : usize = 500;
-    const GRID_HEIGHT   : usize = 500;
-    const PIXEL_SIZE    : usize = 2;
+    const GRID_WIDTH    : usize = 100;
+    const GRID_HEIGHT   : usize = 100;
+    const PIXEL_SIZE    : usize = 10;
     const RATIO         : usize = 2; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
@@ -42,6 +42,7 @@ fn main() {
     println!("Press <C> to clear");
 
     let mut grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
+    let mut grid_wu = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
     let mut pairs = vec![vec![0usize;4];0];
     let mut points = vec![vec![0usize;2];0];
     let mut pair = vec![0usize;0];
@@ -74,7 +75,15 @@ fn main() {
             }
         }
     }
-    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, width: usize, color: &Color) {
+    fn save_point(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, width: usize, color: &Color) {
+        for i in 0..width {
+            for j in 0..width {
+                if i + x < width/2 || j + y < width/2 { continue; } 
+                vec_grid[i+x-width/2][j+y-width/2] = (*color).clone();
+            }
+        }
+    }
+    fn draw_line(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, vec_grid_wu: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, width: usize, color: &Color) {
         let mut x_lo: i32 = x1 as i32;
         let mut x_hi: i32 = x2 as i32;
         let mut y_lo: i32 = y1 as i32;
@@ -108,6 +117,10 @@ fn main() {
             bound = x_hi;
         }
         let mut p: i32 = 2 * dy - dx;
+        // starting y/x if flipped
+        let starting_x = cx;
+        let starting_y = cy;
+        let slope = (dy as f32)/(dx as f32);
         while (cx as usize) <= (bound as usize) {
             if flipped{
                 draw_point(cvs, vec_grid, cy as usize, cx as usize, width, color);
@@ -115,6 +128,7 @@ fn main() {
             else {
                 draw_point(cvs, vec_grid, cx as usize, cy as usize, width, color);
             }
+            draw_points_wu(vec_grid_wu, cx as usize, starting_y as usize, starting_x as usize, slope, flipped, width, color);
             cx+=sign(dx);
             if p < 0 {
                 p = p + 2 * dy * sign(dy);
@@ -126,126 +140,89 @@ fn main() {
         }
     }
 
-    fn draw_line_wu(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x1:usize,y1:usize,x2:usize,y2:usize, width: usize, color: &Color) {
-        let mut x_lo: i32 = x1 as i32;
-        let mut x_hi: i32 = x2 as i32;
-        let mut y_lo: i32 = y1 as i32;
-        let mut y_hi: i32 = y2 as i32;
-        let mut dx = x_hi - x_lo;
-        let mut dy = y_hi - y_lo;
-        let flipped = dx * sign(dx) < dy * sign(dy);
-        let bound;
-        let mut cx;
-        let cy;
+    fn draw_points_wu(vec_grid: &mut Vec<Vec<Color>>, cx: usize, cy: usize, starting_x: usize, slope: f32, flipped: bool, width: usize, color: &Color) {
+        let real_loc = slope * ((cx - starting_x) as f32) + (cy as f32); 
+        let upper = real_loc.ceil() as usize;
+        let lower = real_loc.floor() as usize;
         if flipped {
-            if y_lo > y_hi {
-                mem::swap(&mut x_lo, &mut x_hi);
-                mem::swap(&mut y_lo, &mut y_hi);
+            let low_bound = real_loc - width as f32/2_f32;
+            let mut idx = lower;
+            while idx as f32 > low_bound - 1_f32 {
+                let dist = real_loc - idx as f32;
+                let alpha: u8;
+                if dist <= (width as f32/2_f32) {
+                    alpha = 255 as u8;
+                }
+                else {
+                    alpha = (255_f32*(1_f32 - (low_bound - idx as f32))).round() as u8;
+                }
+                save_point(vec_grid, idx, cx, 1, &Color {
+                    r: color.r,
+                    g: color.g,
+                    b: color.b,
+                    a: alpha,
+                });
+                idx -= 1;
             }
-            dx = y_hi - y_lo;
-            dy = x_hi - x_lo;
-            cx = y_lo;
-            cy = x_lo;
-            bound = y_hi;
+            let upper_bound = real_loc + width as f32/2_f32;
+            idx = upper;
+            while (idx as f32) < upper_bound + 1_f32 {
+                let dist = idx as f32 - real_loc;
+                let alpha: u8;
+                if dist <= (width as f32/2_f32) {
+                    alpha = 255 as u8;
+                }
+                else {
+                    alpha = (255_f32*(1_f32 - (idx as f32 - upper_bound))).round() as u8;
+                }
+                save_point(vec_grid, idx, cx, 1, &Color {
+                    r: color.r,
+                    g: color.g,
+                    b: color.b,
+                    a: alpha,
+                });
+                idx += 1;
+            }
         }
         else {
-            if x_lo > x_hi {
-                mem::swap(&mut x_lo, &mut x_hi);
-                mem::swap(&mut y_lo, &mut y_hi);
+            let low_bound = real_loc - width as f32/2_f32;
+            let mut idx = lower;
+            while idx as f32 > low_bound - 1_f32 {
+                let dist = real_loc - idx as f32;
+                let alpha: u8;
+                if dist <= (width as f32/2_f32) {
+                    alpha = 255 as u8;
+                }
+                else {
+                    alpha = (255_f32*(1_f32 - (low_bound - idx as f32))).round() as u8;
+                }
+                save_point(vec_grid, cx, idx, 1, &Color {
+                    r: color.r,
+                    g: color.g,
+                    b: color.b,
+                    a: alpha,
+                });
+                idx -= 1;
             }
-            dx = x_hi - x_lo;
-            dy = y_hi - y_lo;
-            cx = x_lo;
-            cy = y_lo;
-            bound = x_hi;
-        }
-        let start = cx as f32;
-        let slope = (dy as f32)/(dx as f32);
-        while (cx as usize) <= (bound as usize) {
-            let real_loc = slope * (cx as f32 - start) + (cy as f32); 
-            let upper = real_loc.ceil() as usize;
-            let lower = real_loc.floor() as usize;
-            if flipped{
-                let low_bound = real_loc - width as f32/2_f32;
-                let mut idx = lower;
-                while idx as f32 > low_bound - 1_f32 {
-                    let dist = real_loc - idx as f32;
-                    let alpha: u8;
-                    if dist <= (width as f32/2_f32) {
-                        alpha = 255 as u8;
-                    }
-                    else {
-                        alpha = (255_f32*(1_f32 - (low_bound - idx as f32))).round() as u8;
-                    }
-                    draw_point(cvs, vec_grid, idx as usize, cx as usize, 1, &Color {
-                        r: color.r,
-                        g: color.g,
-                        b: color.b,
-                        a: alpha,
-                    });
-                    idx -= 1;
+            let upper_bound = real_loc + width as f32/2_f32;
+            idx = upper;
+            while (idx as f32) < upper_bound + 1_f32 {
+                let dist = idx as f32 - real_loc;
+                let alpha: u8;
+                if dist <= (width as f32/2_f32) {
+                    alpha = 255 as u8;
                 }
-                let upper_bound = real_loc + width as f32/2_f32;
-                idx = upper;
-                while (idx as f32) < upper_bound + 1_f32 {
-                    let dist = idx as f32 - real_loc;
-                    let alpha: u8;
-                    if dist <= (width as f32/2_f32) {
-                        alpha = 255 as u8;
-                    }
-                    else {
-                        alpha = (255_f32*(1_f32 - (idx as f32 - upper_bound))).round() as u8;
-                    }
-                    draw_point(cvs, vec_grid, idx as usize, cx as usize, 1, &Color {
-                        r: color.r,
-                        g: color.g,
-                        b: color.b,
-                        a: alpha,
-                    });
-                    idx += 1;
+                else {
+                    alpha = (255_f32*(1_f32 - (idx as f32 - upper_bound))).round() as u8;
                 }
+                save_point(vec_grid, cx, idx, 1, &Color {
+                    r: color.r,
+                    g: color.g,
+                    b: color.b,
+                    a: alpha,
+                });
+                idx += 1;
             }
-            else {
-                let low_bound = real_loc - width as f32/2_f32;
-                let mut idx = lower;
-                while idx as f32 > low_bound - 1_f32 {
-                    let dist = real_loc - idx as f32;
-                    let alpha: u8;
-                    if dist <= (width as f32/2_f32) {
-                        alpha = 255 as u8;
-                    }
-                    else {
-                        alpha = (255_f32*(1_f32 - (low_bound - idx as f32))).round() as u8;
-                    }
-                    draw_point(cvs, vec_grid, cx as usize, idx, 1, &Color {
-                        r: color.r,
-                        g: color.g,
-                        b: color.b,
-                        a: alpha,
-                    });
-                    idx -= 1;
-                }
-                let upper_bound = real_loc + width as f32/2_f32;
-                idx = upper;
-                while (idx as f32) < upper_bound + 1_f32 {
-                    let dist = idx as f32 - real_loc;
-                    let alpha: u8;
-                    if dist <= (width as f32/2_f32) {
-                        alpha = 255 as u8;
-                    }
-                    else {
-                        alpha = (255_f32*(1_f32 - (idx as f32 - upper_bound))).round() as u8;
-                    }
-                    draw_point(cvs, vec_grid, cx as usize, idx, 1, &Color {
-                        r: color.r,
-                        g: color.g,
-                        b: color.b,
-                        a: alpha,
-                    });
-                    idx += 1;
-                }
-            }
-            cx+=sign(dx);
         }
     }
 
@@ -257,13 +234,14 @@ fn main() {
             return 1;
         }
     }
-    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>,vec_points:&mut Vec<Vec<usize>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
+    fn press(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, vec_grid_wu: &mut Vec<Vec<Color>>,vec_points:&mut Vec<Vec<usize>>, vec_pairs: &mut Vec<Vec<usize>>,vec_pair: &mut Vec<usize>, x: usize, y:usize, color: &Color) {
         draw_point(cvs, vec_grid, x, y, POINT_WIDTH, color);
+        save_point(vec_grid_wu, x, y, POINT_WIDTH, color);
         vec_points.push(vec![x,y]);
         vec_pair.push(x);
         vec_pair.push(y);
         if vec_pair.len()>3 {
-            draw_line(cvs, vec_grid, vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3], LINE_WIDTH, color);
+            draw_line(cvs, vec_grid, vec_grid_wu, vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3], LINE_WIDTH, color);
             vec_pairs.push(vec![vec_pair[0], vec_pair[1], vec_pair[2], vec_pair[3]]);
             vec_pair.clear();
         }
@@ -293,18 +271,10 @@ fn main() {
                         }
                     }
                     winit::event::VirtualKeyCode::Key2 => {
-                        // prob need some changes here
-                        let mut color_grid = vec![vec![palette::BLACK; GRID_WIDTH]; GRID_HEIGHT];
                         canvas.reset_frame();
-                        for i in &points {
-                            draw_point(&mut canvas, &mut color_grid, i[0], i[1], POINT_WIDTH, &COLOR);
-                        }
-                        for i in &pairs {
-                            draw_line_wu(&mut canvas, &mut color_grid, i[0], i[1], i[2], i[3], LINE_WIDTH, &COLOR);
-                        }
                         for i in 0..GRID_WIDTH {
                             for j in 0..GRID_HEIGHT {
-                                draw_pixel(&mut canvas, i, j, &color_grid[i][j]);
+                                draw_pixel(&mut canvas, i, j, &grid_wu[i][j]);
                             }
                         }
                     }
@@ -334,6 +304,7 @@ fn main() {
                         for i in 0..GRID_WIDTH {
                             for j in 0..GRID_HEIGHT {
                                 grid[i][j] = palette::BLACK;
+                                grid_wu[i][j] = palette::BLACK;
                             }
                         }
                     }
@@ -365,7 +336,7 @@ fn main() {
                 if x >= GRID_WIDTH || y >= GRID_HEIGHT {
                     return;
                 }
-                press(&mut canvas, &mut grid, &mut points, &mut pairs, &mut pair, x as usize, y as usize, &COLOR);
+                press(&mut canvas, &mut grid, &mut grid_wu, &mut points, &mut pairs, &mut pair, x as usize, y as usize, &COLOR);
                 window.request_redraw();
             }
             Event::WindowEvent {
