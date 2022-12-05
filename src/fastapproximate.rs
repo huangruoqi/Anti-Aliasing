@@ -53,12 +53,12 @@ fn fxaa_helper(i:usize, j:usize, vec_grid: &Vec<Vec<Color>>, width:usize, height
     let r_2_y_1 = clamp((j as f64 + direction_y * (0.0/3.0 - 0.5)), 0.0, (height-1) as f64) as usize;
     let r_2_x_2 = clamp((i as f64 + direction_x * (3.0/3.0 - 0.5)), 0.0, (width-1)  as f64) as usize;
     let r_2_y_2 = clamp((j as f64 + direction_y * (3.0/3.0 - 0.5)), 0.0, (height-1) as f64) as usize;
-    let r_2_c_1 = vec_grid[r_1_x_1][r_1_y_1].clone();
-    let r_2_c_2 = vec_grid[r_1_x_2][r_1_y_2].clone();
+    let r_2_c_1 = vec_grid[r_2_x_1][r_2_y_1].clone();
+    let r_2_c_2 = vec_grid[r_2_x_2][r_2_y_2].clone();
     let mut result_2 = palette::BLACK;
-    result_2.r = ((r_1_c_1.r as i32 + r_1_c_2.r as i32)/ 2) as u8;
-    result_2.g = ((r_1_c_1.g as i32 + r_1_c_2.g as i32)/ 2) as u8;
-    result_2.b = ((r_1_c_1.b as i32 + r_1_c_2.b as i32)/ 2) as u8;
+    result_2.r = ((r_2_c_1.r as i32 + r_2_c_2.r as i32)/ 2) as u8;
+    result_2.g = ((r_2_c_1.g as i32 + r_2_c_2.g as i32)/ 2) as u8;
+    result_2.b = ((r_2_c_1.b as i32 + r_2_c_2.b as i32)/ 2) as u8;
     let lumi_r2 = get_luminosity(&result_2);
 
     let lumi_min = min(lumi_md, min(min(lumi_tl, lumi_tr),min(lumi_bl, lumi_br)));
