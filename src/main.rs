@@ -10,10 +10,10 @@ mod supersampling;
 mod fastapproximate;
 
 fn main() {
-    const GRID_WIDTH    : usize = 200;
-    const GRID_HEIGHT   : usize = 200;
-    const PIXEL_SIZE    : usize = 8;
-    const RATIO         : usize = 2; // change to 1 for Windows
+    const GRID_WIDTH    : usize = 500;
+    const GRID_HEIGHT   : usize = 500;
+    const PIXEL_SIZE    : usize = 2;
+    const RATIO         : usize = 1; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
     const POINT_WIDTH   : usize = 5;
@@ -69,6 +69,7 @@ fn main() {
     fn draw_point(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, width: usize, color: &Color) {
         for i in 0..width {
             for j in 0..width {
+                if i + x < width/2 || j + y < width/2 { continue; } 
                 draw_and_save_pixel(cvs, vec_grid, i+x-width/2, j+y-width/2, color);
             }
         }
@@ -223,6 +224,9 @@ fn main() {
                 // is_pressing = true;
                 let x = mouse_x / PIXEL_SIZE;
                 let y = mouse_y / PIXEL_SIZE;
+                if x >= GRID_WIDTH || y >= GRID_HEIGHT {
+                    return;
+                }
                 press(&mut canvas, &mut grid, &mut points, &mut pairs, &mut pair, x as usize, y as usize, &COLOR);
                 window.request_redraw();
             }
