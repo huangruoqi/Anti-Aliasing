@@ -49,6 +49,7 @@ fn draw_pixel(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize, color: &Color) 
 fn draw_point(vec_grid: &mut Vec<Vec<Color>>, x: usize, y:usize,width:usize, color: &Color) {
     for i in 0..width {
         for j in 0..width {
+            if i + x < width/2 || j + y < width/2 { continue; } 
             draw_pixel(vec_grid, i+x - width/2, j+y-width/2, color);
         }
     }
