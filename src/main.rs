@@ -128,7 +128,7 @@ fn main() {
             else {
                 draw_point(cvs, vec_grid, cx as usize, cy as usize, width, color);
             }
-            draw_points_wu(cvs, vec_grid_wu, cx as usize, starting_y as usize, starting_x as usize, slope, flipped, width, color);
+            draw_points_wu(vec_grid_wu, cx as usize, starting_y as usize, starting_x as usize, slope, flipped, width, color);
             cx+=sign(dx);
             if p < 0 {
                 p = p + 2 * dy * sign(dy);
@@ -140,7 +140,7 @@ fn main() {
         }
     }
 
-    fn draw_points_wu(cvs: &mut WinitCanvas, vec_grid: &mut Vec<Vec<Color>>, cx: usize, cy: usize, starting_x: usize, slope: f32, flipped: bool, width: usize, color: &Color) {
+    fn draw_points_wu(vec_grid: &mut Vec<Vec<Color>>, cx: usize, cy: usize, starting_x: usize, slope: f32, flipped: bool, width: usize, color: &Color) {
         let real_loc = slope * ((cx - starting_x) as f32) + (cy as f32); 
         let upper = real_loc.ceil() as usize;
         let lower = real_loc.floor() as usize;

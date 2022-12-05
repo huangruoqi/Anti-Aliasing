@@ -38,10 +38,10 @@ fn fxaa_helper(i:usize, j:usize, vec_grid: &Vec<Vec<Color>>, width:usize, height
     direction_x = clamp(direction_x, -FXAA_SPAN_MAX, FXAA_SPAN_MAX);
     direction_y = clamp(direction_y, -FXAA_SPAN_MAX, FXAA_SPAN_MAX);
 
-    let r_1_x_1 = clamp((i as f64 + direction_x * (1.0/3.0 - 0.5)), 0.0, (width-1)  as f64) as usize;
-    let r_1_y_1 = clamp((j as f64 + direction_y * (1.0/3.0 - 0.5)), 0.0, (height-1) as f64) as usize;
-    let r_1_x_2 = clamp((i as f64 + direction_x * (2.0/3.0 - 0.5)), 0.0, (width-1)  as f64) as usize;
-    let r_1_y_2 = clamp((j as f64 + direction_y * (2.0/3.0 - 0.5)), 0.0, (height-1) as f64) as usize;
+    let r_1_x_1 = clamp(i as f64 + direction_x * (1.0/3.0 - 0.5), 0.0, (width-1)  as f64) as usize;
+    let r_1_y_1 = clamp(j as f64 + direction_y * (1.0/3.0 - 0.5), 0.0, (height-1) as f64) as usize;
+    let r_1_x_2 = clamp(i as f64 + direction_x * (2.0/3.0 - 0.5), 0.0, (width-1)  as f64) as usize;
+    let r_1_y_2 = clamp(j as f64 + direction_y * (2.0/3.0 - 0.5), 0.0, (height-1) as f64) as usize;
     let r_1_c_1 = vec_grid[r_1_x_1][r_1_y_1].clone();
     let r_1_c_2 = vec_grid[r_1_x_2][r_1_y_2].clone();
     let mut result_1 = palette::BLACK;
@@ -49,10 +49,10 @@ fn fxaa_helper(i:usize, j:usize, vec_grid: &Vec<Vec<Color>>, width:usize, height
     result_1.g = ((r_1_c_1.g as i32 + r_1_c_2.g as i32)/ 2) as u8;
     result_1.b = ((r_1_c_1.b as i32 + r_1_c_2.b as i32)/ 2) as u8;
 
-    let r_2_x_1 = clamp((i as f64 + direction_x * (0.0/3.0 - 0.5)), 0.0, (width-1)  as f64) as usize;
-    let r_2_y_1 = clamp((j as f64 + direction_y * (0.0/3.0 - 0.5)), 0.0, (height-1) as f64) as usize;
-    let r_2_x_2 = clamp((i as f64 + direction_x * (3.0/3.0 - 0.5)), 0.0, (width-1)  as f64) as usize;
-    let r_2_y_2 = clamp((j as f64 + direction_y * (3.0/3.0 - 0.5)), 0.0, (height-1) as f64) as usize;
+    let r_2_x_1 = clamp(i as f64 + direction_x * (0.0/3.0 - 0.5), 0.0, (width-1)  as f64) as usize;
+    let r_2_y_1 = clamp(j as f64 + direction_y * (0.0/3.0 - 0.5), 0.0, (height-1) as f64) as usize;
+    let r_2_x_2 = clamp(i as f64 + direction_x * (3.0/3.0 - 0.5), 0.0, (width-1)  as f64) as usize;
+    let r_2_y_2 = clamp(j as f64 + direction_y * (3.0/3.0 - 0.5), 0.0, (height-1) as f64) as usize;
     let r_2_c_1 = vec_grid[r_2_x_1][r_2_y_1].clone();
     let r_2_c_2 = vec_grid[r_2_x_2][r_2_y_2].clone();
     let mut result_2 = palette::BLACK;
