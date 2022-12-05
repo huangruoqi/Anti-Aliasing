@@ -27,7 +27,7 @@ fn fxaa_helper(i:usize, j:usize, vec_grid: &Vec<Vec<Color>>, width:usize, height
     let lumi_tr = get_luminosity(&vec_grid[i+1][j-1]);   // top right
     let lumi_bl = get_luminosity(&vec_grid[i-1][j+1]);   // bottom left
     let lumi_br = get_luminosity(&vec_grid[i+1][j+1]);   // bottom right
-    let mut direction_x = -((lumi_tl + lumi_tr) - (lumi_bl + lumi_br));
+    let mut direction_x = ((lumi_tl + lumi_tr) - (lumi_bl + lumi_br));
     let mut direction_y = (lumi_tl + lumi_bl) - (lumi_tr + lumi_br);
     let mut direction_reduce = (lumi_tl + lumi_tr + lumi_bl + lumi_br) * (FXAA_REDUCE_MUL * 0.25);
     if direction_reduce < FXAA_REDUCE_MIN { direction_reduce = FXAA_REDUCE_MIN; }
