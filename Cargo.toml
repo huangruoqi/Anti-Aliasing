@@ -18,3 +18,5 @@ bytemuck = { version = "1.4", features = ["derive"] }
 anyhow = "1.0"
 rand ="0.8"
 ferrux_canvas = "0.3.2"
+macroquad = "0.3.25"
+linear = "0.2.0"
