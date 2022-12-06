@@ -13,7 +13,7 @@ fn main() {
     const GRID_WIDTH    : usize = 100;
     const GRID_HEIGHT   : usize = 100;
     const PIXEL_SIZE    : usize = 10;
-    const RATIO         : usize = 2; // change to 1 for Windows
+    const RATIO         : usize = 1; // change to 1 for Windows
     const DISPLAY_WIDTH : usize = GRID_WIDTH * PIXEL_SIZE / RATIO;
     const DISPLAY_HEIGHT: usize = GRID_HEIGHT * PIXEL_SIZE / RATIO;
     const POINT_WIDTH   : usize = 5;
