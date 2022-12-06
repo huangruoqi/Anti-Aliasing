@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-async fn nearest() {
+async fn linear() {
     let render_target = render_target(500, 150);
     render_target.texture.set_filter(FilterMode::Linear);
     loop {
@@ -29,5 +29,5 @@ async fn nearest() {
 }
 #[macroquad::main("BasicShapes")]
 async fn main(){
-    nearest().await;
+    linear().await;
 }
