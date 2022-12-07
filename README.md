@@ -10,6 +10,7 @@ Execute either one of the following commands in terminal
 
 Library:
 * using ferrux_canvas currently, open to other Canvas implementations
+* using macroquad for linear texture filter
 
 Progress:
 * Bresenham's line algorithm
