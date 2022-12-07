@@ -5,7 +5,7 @@ A desktop application with a canvas to draw lines, and the line will be displaye
 Install Rust: https://www.rust-lang.org/tools/install
 
 Execute either one of the following commands in terminal
-* `cargo run --bin main` for anti-aliasing
+* `cargo run --bin anti-aliasing` for anti-aliasing
 * `cargo run --bin linear` for linear texture filter
 
 Library:
